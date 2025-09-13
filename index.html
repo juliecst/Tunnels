@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Score Grid</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    #grid > div {
+      aspect-ratio: 1 / 1;
+      height: 100px;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+    #modal img {
+      display: block;
+      max-width: 90vw;
+      max-height: 75vh;
+      object-fit: contain;
+    }
+
+  </style>
+</head>
+
+
+
+<body class="bg-white text-black min-h-screen p-4">
+
+  <!-- <h1 class="text-2xl font-bold mb-4">🧩 Your Score Grid</h1> -->
+   <h1 class="text-2xl font-bold mb-4 flex items-center justify-center"> Tunnel Bingo</h1>
+  <div id="grid" class="grid grid-cols-4 gap-4"></div>
+
+
+  <!-- Modal -->
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden p-4">
+  <div class="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-lg shadow-lg p-4 overflow-auto flex flex-col items-center">
+    <!-- ❌ Close button -->
+    <button id="closeModal" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl font-bold focus:outline-none">&times;</button>
+
+    <!-- Score will be injected here -->
+    <div id="modalContent" class="flex flex-col items-center justify-center w-full"></div>
+
+    <!-- Complete button -->
+    <button id="completeBtn" class="mt-6 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+      Score Completed
+    </button>
+  </div>
+</div>
+  
+  <button id="resetBtn" class="mt-6 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
+  🔄 Reset All
+  </button>
+
+
+
+
+  <script src="script.js"></script>
+</body>
+</html>
