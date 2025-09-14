@@ -4,22 +4,22 @@
 const reshuffle = true; // Toggle reshuffling on or off
 
 const scoreFilenames = [
-  "Borbach2.svg",
-  "KleinAnnen.svg",
-  "RulebasedTunnel.svg",
-  "StephaniErbstollen.svg",
-  "stJohannes.svg",
-  "stJohannesErbstollen1.svg",
-  "stJohannesErbstollen3.svg",
-  "Stuchtey2.svg",
-  "vereinigteFriedrichsfeld2.svg",
-  "Vereinigungsstollen.svg",
-  "SubwayLoop.svg",
-  "SpiralTrack.svg",
-  "MazeScore.svg",
-  "NeonRun.svg",
-  "SoftEdge.svg",
-  "WarpLine.svg"
+  "Score1.svg",
+  "Score2.svg",
+  "Score3.svg",
+  "Score4.svg",
+  "Score5.svg",
+  "Score6.svg",
+  "Score7.svg",
+  "Score8.svg",
+  "Score9.svg",
+  "Score10.svg",
+  "Score11.svg",
+  "Score12.svg",
+  "Score13.svg",
+  "Score14.svg",
+  "Score15.svg",
+  "Score16.svg"
 ];
 
 const gridEl = document.getElementById("grid");
@@ -49,15 +49,22 @@ function renderGrid() {
   randomizedOrder.forEach((index) => {
     const filename = scoreFilenames[index];
     const cell = document.createElement("div");
-    cell.className = `border border-gray-300 rounded-xl cursor-pointer aspect-square flex flex-col items-center justify-center overflow-hidden transition-colors duration-300 p-2 text-center ${
-        completedScores.includes(filename) ? "bg-green-200" : "bg-white hover:bg-gray-100"
-        }`;
+    cell.className = `
+        border border-gray-300 rounded-xl cursor-pointer aspect-square
+        flex flex-col items-center justify-center overflow-hidden
+        transition-colors duration-300 p-1 sm:p-2 text-center
+        ${completedScores.includes(filename) ? "bg-green-200" : "bg-white hover:bg-gray-100"}
+        `;
+    
+
     
     cell.dataset.scoreIndex = index;
 
     const label = document.createElement("div");
     label.textContent = filename.replace(".svg", "");
-    label.className = "text-sm font-semibold mb-2";
+    label.className = "text-xs sm:text-sm font-semibold mb-1 sm:mb-2";
+
+    //label.className = "text-sm font-semibold mb-2";
 
     const thumb = document.createElement("img");
     thumb.src = `scores/${filename}`;
@@ -90,7 +97,7 @@ function openModal(index) {
     />
     <div class="text-center text-gray-600 mt-4 text-lg font-medium">${filename.replace(".svg", "")}</div>
   </div>
-`;
+`;    
 
 
  
