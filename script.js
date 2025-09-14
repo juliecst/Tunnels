@@ -67,7 +67,7 @@ function renderGrid() {
     //label.className = "text-sm font-semibold mb-2";
 
     const thumb = document.createElement("img");
-    thumb.src = `scores/${filename}`;
+    thumb.src = `Scores/${filename}`;
     thumb.alt = filename;
     //thumb.className = "max-w-full max-h-full";
     //thumb.className = "object-contain w-full h-full";
@@ -91,7 +91,7 @@ function openModal(index) {
   modalContent.innerHTML = `
   <div class="flex flex-col items-center w-full">
     <img
-      src="scores/${filename}"
+      src="Scores/${filename}"
       type="image/svg+xml"
       class="max-w-[90vw] max-h-[75vh] w-auto h-auto object-contain block overflow-hidden"
     />
