@@ -141,6 +141,42 @@ function renderGrid() {
 }
 
 // ---------------- Modal ----------------
+// function openModal(index) {
+//   currentScoreIndex = index;
+//   const filename = scoreFilenames[index];
+//   const assignedPlayer = playerAssignments[filename];
+
+//   fetch(`Scores/${filename}`)
+//     .then(r => r.text())
+//     .then(svgText => {
+//       const parser = new DOMParser();
+//       const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+//       const svgEl = svgDoc.documentElement;
+
+//       if (assignedPlayer === "Player1") {
+//         const p2 = svgEl.querySelector('#Player2');
+//         if (p2) p2.setAttribute("opacity", "0.5");
+//       } else {
+//         const p1 = svgEl.querySelector('#Player1');
+//         if (p1) p1.setAttribute("opacity", "0.5");
+//       }
+//     const serializer = new XMLSerializer();
+//     const svgStr = serializer.serializeToString(svgEl);
+//     const blob = new Blob([svgStr], { type: "image/svg+xml" });
+//     const url = URL.createObjectURL(blob);
+
+//     modalContent.innerHTML = `
+//     <div class="flex flex-col items-center w-full">
+//         <img src="${url}" class="max-w-[90vw] max-h-[75vh] w-auto h-auto object-contain block overflow-hidden" />
+//         <div class="text-center text-gray-600 mt-4 text-lg font-medium">
+//         ${filename.replace(".svg","")} – ${assignedPlayer}
+//         </div>
+//     </div>`;
+//     modal.classList.remove("hidden");
+//     document.body.classList.add("modal-open");
+//      });
+// }
+
 function openModal(index) {
   currentScoreIndex = index;
   const filename = scoreFilenames[index];
@@ -153,41 +189,72 @@ function openModal(index) {
       const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
       const svgEl = svgDoc.documentElement;
 
-      if (assignedPlayer === "Player1") {
-        const p2 = svgEl.querySelector('#Player2');
-        if (p2) p2.setAttribute("opacity", "0.5");
-      } else {
-        const p1 = svgEl.querySelector('#Player1');
-        if (p1) p1.setAttribute("opacity", "0.5");
+      // ---- helper to grey out the opposite player's layer ----
+      function greyOutGroup(g, opacity = 0.5, grey = "#9CA3AF") {
+        if (!g) return;
+        g.setAttribute("opacity", String(opacity));
+
+        // For every descendant element, override stroke/fill
+        g.querySelectorAll("*").forEach((el) => {
+          // style attribute override (wins over presentation attrs)
+          const style = el.getAttribute("style") || "";
+          const newStyle =
+            style +
+            (style && !style.trim().endsWith(";") ? ";" : "") +
+            `stroke:${grey} !important;`;
+          el.setAttribute("style", newStyle);
+
+          // Also set presentation attributes (covers cases without inline style)
+          el.setAttribute("stroke", grey);
+
+          // If there is a visible fill (not "none"), tint it too
+          const fillAttr = el.getAttribute("fill");
+          const hasFill =
+            (fillAttr && fillAttr.toLowerCase() !== "none") ||
+            // some paths rely on default fill; only color typical filled shapes
+            ["circle", "ellipse", "rect"].includes(el.tagName.toLowerCase());
+          if (hasFill) {
+            // style override
+            const s2 = el.getAttribute("style") || "";
+            el.setAttribute(
+              "style",
+              s2 +
+                (s2 && !s2.trim().endsWith(";") ? ";" : "") +
+                `fill:${grey} !important;`
+            );
+            // presentation attribute
+            el.setAttribute("fill", grey);
+          }
+        });
       }
-    const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(svgEl);
-    const blob = new Blob([svgStr], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
 
-    modalContent.innerHTML = `
-    <div class="flex flex-col items-center w-full">
-        <img src="${url}" class="max-w-[90vw] max-h-[75vh] w-auto h-auto object-contain block overflow-hidden" />
-        <div class="text-center text-gray-600 mt-4 text-lg font-medium">
-        ${filename.replace(".svg","")} – ${assignedPlayer}
+      // make the *other* player grey + 50% opacity
+      if (assignedPlayer === "Player1") {
+        greyOutGroup(svgEl.querySelector("#Player2"), 0.5);
+      } else {
+        greyOutGroup(svgEl.querySelector("#Player1"), 0.5);
+      }
+
+      // ---- keep your sizing exactly as before (img with blob url) ----
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgEl);
+      const blob = new Blob([svgStr], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+
+      modalContent.innerHTML = `
+        <div class="flex flex-col items-center w-full">
+          <img src="${url}" class="max-w-[90vw] max-h-[75vh] w-auto h-auto object-contain block overflow-hidden" />
+          <div class="text-center text-gray-600 mt-4 text-lg font-medium">
+            ${filename.replace(".svg","")} – ${assignedPlayer}
+          </div>
         </div>
-    </div>`;
+      `;
 
-    //   svgEl.setAttribute("width", "90%");
-    //   svgEl.setAttribute("height", "auto");
-    //   svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
-    //   modalContent.innerHTML = `
-    //     <div class="flex flex-col items-center w-full">
-    //       ${svgEl.outerHTML}
-    //       <div class="text-center text-gray-600 mt-4 text-lg font-medium">
-    //         ${filename.replace(".svg","")} – ${assignedPlayer}
-    //       </div>
-    //     </div>`;
-    modal.classList.remove("hidden");
-    document.body.classList.add("modal-open");
-     });
+      modal.classList.remove("hidden");
+      document.body.classList.add("modal-open");
+    });
 }
+
 
 // ---------------- Buttons ----------------
 closeModal.addEventListener("click", () => {
@@ -216,14 +283,17 @@ completeBtn.addEventListener("click", () => {
     localStorage.setItem("completedScores", JSON.stringify(completedScores));
     renderGrid();
 
+
     // ✅ NEW: check for bingo
-    if (checkBingo(completedScores, randomizedOrder)) {
-      alert("🎉 Bingo! 🎉");
-      launchConfetti();
+    if (checkBingo(completedScores, randomizedOrder, scoreFilenames)) {
+        alert("🎉 Bingo! 🎉");
+        launchConfetti();
     }
+
 
     modal.classList.add("hidden");
     document.body.classList.remove("modal-open");
+    currentScoreIndex = null;
   }
 });
 
